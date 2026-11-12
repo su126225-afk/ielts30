@@ -1,0 +1,289 @@
+import { CONFIG } from './config.js';
+import * as ML from './marlogic.js';
+
+const LS = {
+  get(k, d) { try { const v = localStorage.getItem('ie30_' + k); return v == null ? d : JSON.parse(v); } catch { return d; } },
+  set(k, v) { localStorage.setItem('ie30_' + k, JSON.stringify(v)); },
+};
+const uid = () => (crypto.randomUUID ? crypto.randomUUID() : 'id-' + Date.now() + Math.random().toString(16).slice(2));
+const byNewest = (a, b) => String(b.created_at).localeCompare(String(a.created_at));
+const RESULT_LIST_COLS = 'id,test_id,test_title,section,format,student_name,group_code,correct,total,percent,band,points,time_sec,created_at';
+
+export const cloudConfigured = () => !!(CONFIG.supabaseUrl && CONFIG.supabaseAnonKey);
+
+// ───────────── DEMO (localStorage) ─────────────
+const local = {
+  mode: 'local',
+  async init() {
+    if (LS.get('seeded')) return;
+    let tests = [];
+    try { const r = await fetch('tests.json'); if (r.ok) tests = (await r.json()).tests || []; } catch { /* no bundle */ }
+    const now = Date.now();
+    LS.set('tests', tests.map((t, i) => ({ published: true, ...t, created_at: new Date(now - i * 1000).toISOString() })));
+    LS.set('groups', [{ code: 'DEMO', name: 'Demo group' }]);
+    LS.set('results', []);
+    LS.set('seeded', 1);
+  },
+  isAdmin: () => sessionStorage.getItem('ie30_admin') === '1',
+  async adminLogin(_email, pw) {
+    if (pw !== CONFIG.localAdminPassword) throw new Error('Wrong password');
+    sessionStorage.setItem('ie30_admin', '1');
+  },
+  async adminLogout() { sessionStorage.removeItem('ie30_admin'); },
+  async listTests({ published } = {}) {
+    const t = LS.get('tests', []).slice().sort(byNewest);
+    return published ? t.filter(x => x.published) : t;
+  },
+  async getTest(id) { return LS.get('tests', []).find(t => t.id === id) || null; },
+  async saveTest(t) {
+    const all = LS.get('tests', []);
+    const i = all.findIndex(x => x.id === t.id);
+    const rec = { ...t, created_at: t.created_at || new Date().toISOString() };
+    if (i >= 0) all[i] = rec; else all.push(rec);
+    LS.set('tests', all);
+    return rec;
+  },
+  async saveTests(list) { for (const t of list) await this.saveTest(t); },
+  async deleteTest(id) { LS.set('tests', LS.get('tests', []).filter(t => t.id !== id)); },
+  async checkGroup(code) {
+    const g = LS.get('groups', []).find(g => g.code.toUpperCase() === String(code).trim().toUpperCase());
+    return g ? (g.name || g.code) : null;
+  },
+  async listGroups() { return LS.get('groups', []); },
+  async saveGroup(g) {
+    const all = LS.get('groups', []).filter(x => x.code !== g.code);
+    all.push(g); LS.set('groups', all);
+  },
+  async deleteGroup(code) { LS.set('groups', LS.get('groups', []).filter(g => g.code !== code)); },
+  async saveResult(r) {
+    const rec = { ...r, id: uid(), created_at: new Date().toISOString() };
+    const all = LS.get('results', []); all.push(rec); LS.set('results', all);
+    return rec.id;
+  },
+  async listResults() { return LS.get('results', []).slice().sort(byNewest).map(({ details, ...r }) => r); },
+  async getResult(id) { return LS.get('results', []).find(r => r.id === id) || null; },
+  async deleteResult(id) { LS.set('results', LS.get('results', []).filter(r => r.id !== id)); },
+  async listWritingTasks({ published } = {}) { const t = LS.get('wtasks', []).slice().sort(byNewest); return published ? t.filter(x => x.published) : t; },
+  async getWritingTask(id) { return LS.get('wtasks', []).find(t => t.id === id) || null; },
+  async saveWritingTask(t) {
+    const all = LS.get('wtasks', []), i = all.findIndex(x => x.id === t.id);
+    const rec = { ...t, created_at: t.created_at || new Date().toISOString() };
+    if (i >= 0) all[i] = rec; else all.push(rec);
+    LS.set('wtasks', all); return rec;
+  },
+  async deleteWritingTask(id) { LS.set('wtasks', LS.get('wtasks', []).filter(t => t.id !== id)); },
+  async listVocabSets({ published } = {}) { const t = LS.get('vsets', []).slice().sort(byNewest); return published ? t.filter(x => x.published) : t; },
+  async getVocabSet(id) { return LS.get('vsets', []).find(t => t.id === id) || null; },
+  async saveVocabSet(t) {
+    const all = LS.get('vsets', []), i = all.findIndex(x => x.id === t.id);
+    const rec = { ...t, created_at: t.created_at || new Date().toISOString() };
+    if (i >= 0) all[i] = rec; else all.push(rec);
+    LS.set('vsets', all); return rec;
+  },
+  async deleteVocabSet(id) { LS.set('vsets', LS.get('vsets', []).filter(t => t.id !== id)); },
+  async saveVocabResult(r) { const rec = { ...r, id: uid(), created_at: new Date().toISOString() }; const a = LS.get('vres', []); a.push(rec); LS.set('vres', a); return rec.id; },
+  async listVocabResults() { return LS.get('vres', []).slice().sort(byNewest); },
+  async deleteVocabResult(id) { LS.set('vres', LS.get('vres', []).filter(r => r.id !== id)); },
+  async listSpeakingTests({ published } = {}) { const a = LS.get('stests', []).slice().sort(byNewest); return published ? a.filter(x => x.published) : a; },
+  async getSpeakingTest(id) { return LS.get('stests', []).find(x => x.id === id) || null; },
+  async saveSpeakingTest(t) {
+    const all = LS.get('stests', []), i = all.findIndex(x => x.id === t.id);
+    const rec = { ...t, created_at: t.created_at || new Date().toISOString() };
+    if (i >= 0) all[i] = rec; else all.push(rec);
+    LS.set('stests', all); return rec;
+  },
+  async deleteSpeakingTest(id) { LS.set('stests', LS.get('stests', []).filter(x => x.id !== id)); },
+  async checkSpeaking() { throw new Error('AI tekshiruv faqat Supabase ulanganda ishlaydi (README ga qarang).'); },
+  async saveSpeaking(r) { const rec = { ...r, id: uid(), created_at: new Date().toISOString() }; const a = LS.get('ssubs', []); a.push(rec); LS.set('ssubs', a); return rec.id; },
+  async mySpeakings(name, group) { return LS.get('ssubs', []).filter(w => w.student_name.toLowerCase() === name.toLowerCase() && w.group_code.toUpperCase() === group.toUpperCase()).sort(byNewest); },
+  async listSpeakings() { return LS.get('ssubs', []).slice().sort(byNewest); },
+  async deleteSpeaking(id) { LS.set('ssubs', LS.get('ssubs', []).filter(w => w.id !== id)); },
+  async tgAuth() { throw new Error('Telegram login needs Supabase'); },
+  aiAvailable: false,
+  async checkWriting() { throw new Error('AI tekshiruv faqat Supabase ulanganda ishlaydi (README ga qarang).'); },
+  async saveWriting(r) { const rec = { ...r, id: uid(), created_at: new Date().toISOString() }; const a = LS.get('wsubs', []); a.push(rec); LS.set('wsubs', a); return rec.id; },
+  async myWritings(name, group) { return LS.get('wsubs', []).filter(w => w.student_name.toLowerCase() === name.toLowerCase() && w.group_code.toUpperCase() === group.toUpperCase()).sort(byNewest); },
+  async listWritings() { return LS.get('wsubs', []).slice().sort(byNewest); },
+  async deleteWriting(id) { LS.set('wsubs', LS.get('wsubs', []).filter(w => w.id !== id)); },
+  async listMocks() { return []; },
+  async deleteMock() {},
+  async addActivity(name, group, secs) {
+    const day = new Date().toISOString().slice(0, 10), a = LS.get('activity', []);
+    const r = a.find(x => x.student_name === name && x.group_code === group && x.day === day);
+    if (r) r.seconds += secs; else a.push({ student_name: name, group_code: group, day, seconds: secs });
+    LS.set('activity', a);
+  },
+  async listActivity() { return LS.get('activity', []); },
+  // ── Marafon (demo: brauzerda; parollar faqat demo uchun ochiq saqlanadi) ──
+  _mar() { const st = LS.get('ie', null) || ML.newState(); st.accounts ||= []; st.sessions ||= {}; return st; },
+  _acc(st, tok) {
+    const a = st.accounts.find(x => x.id === st.sessions[tok]);
+    if (!a) return { error: 'auth' };
+    if (!a.active) return { error: 'inactive' };
+    if (a.expires_on < ML.todayStr()) return { error: 'expired', expires: a.expires_on };
+    return { a };
+  },
+  async marLogin(l, p) {
+    const st = this._mar(), a = st.accounts.find(x => x.login.toLowerCase() === String(l).trim().toLowerCase());
+    if (!a || a.password !== String(p).trim()) return { error: 'bad' };
+    if (!a.active) return { error: 'inactive' };
+    if (a.expires_on < ML.todayStr()) return { error: 'expired', expires: a.expires_on };
+    const token = uid(); st.sessions[token] = a.id; LS.set('ie', st);
+    return { token, login: a.login, name: a.student_name, group: a.group_code, expires: a.expires_on };
+  },
+  async marLogout(tok) { const st = this._mar(); delete st.sessions[tok]; LS.set('ie', st); },
+  async marStatus(tok) { const st = this._mar(), r = this._acc(st, tok); if (r.error) return r; const s = ML.accStudent(st, r.a, ML.todayStr(), uid); const out = ML.statusCore(st, s, ML.todayStr()); LS.set('ie', st); return { ...out, expires: r.a.expires_on }; },
+  async marComplete(tok, d, t, sc, tot) { const st = this._mar(), r = this._acc(st, tok); if (r.error) return { ok: false, reason: r.error }; const s = ML.accStudent(st, r.a, ML.todayStr(), uid); const out = ML.completeCore(st, s, d, t, sc, tot, ML.todayStr()); LS.set('ie', st); return out; },
+  async marPublic() { return { promo: this._mar().settings.promo_on !== false }; },
+  async marAdminLoad() { const st = this._mar(); return { ...st, accounts: st.accounts.map(({ password, ...a }) => a) }; },
+  async marAccCreate(n, g, days) {
+    const st = this._mar(), base = (String(n).trim().split(/\s+/)[0] || '').toLowerCase().replace(/[^a-z0-9]/g, '').slice(0, 10) || 'student';
+    let i = 1, login; do { login = (base.length < 3 ? 'student' : base) + String(i++).padStart(2, '0'); } while (st.accounts.some(a => a.login === login));
+    const password = String(Math.floor(Math.random() * 1e6)).padStart(6, '0');
+    const exp = new Date(Date.parse(ML.todayStr() + 'T00:00:00Z') + Math.max(1, days || 35) * 864e5).toISOString().slice(0, 10);
+    const a = { id: uid(), login, password, student_name: String(n).trim().replace(/\s+/g, ' '), group_code: String(g || '').toUpperCase(), expires_on: exp, active: true, created_at: new Date().toISOString() };
+    st.accounts.push(a); LS.set('ie', st); return { id: a.id, login, password };
+  },
+  async marAccReset(id) { const st = this._mar(), a = st.accounts.find(x => x.id === id); if (!a) throw new Error('not found'); a.password = String(Math.floor(Math.random() * 1e6)).padStart(6, '0'); for (const k of Object.keys(st.sessions)) if (st.sessions[k] === id) delete st.sessions[k]; LS.set('ie', st); return { login: a.login, password: a.password }; },
+  async marAccPatch(id, patch) { const st = this._mar(), a = st.accounts.find(x => x.id === id); if (a) Object.assign(a, patch); LS.set('ie', st); },
+  async marAccDelete(id) { const st = this._mar(); st.accounts = st.accounts.filter(a => a.id !== id); const s = st.students.find(x => x.account_id === id); if (s) { st.students = st.students.filter(x => x !== s); st.progress = st.progress.filter(p => p.student_id !== s.id); } LS.set('ie', st); },
+  async marSaveDays(days) { const st = this._mar(); st.days = { ...st.days, ...days }; LS.set('ie', st); },
+  async marSaveSettings(s) { const st = this._mar(); st.settings = { ...st.settings, ...s }; LS.set('ie', st); },
+  async marUnlock(id) { const st = this._mar(); ML.unlock(st, id, ML.todayStr()); LS.set('ie', st); },
+  async marPatchStudent(id, patch) { const st = this._mar(); const s = st.students.find(x => x.id === id); if (s) Object.assign(s, patch); LS.set('ie', st); },
+  async uploadFile() { throw new Error('Fayl yuklash faqat Supabase ulanganda ishlaydi. Hozircha fayl manzilini (URL) kiriting.'); },
+  canUpload: false,
+};
+
+// ───────────── CLOUD (Supabase) ─────────────
+async function makeCloud() {
+  const { createClient } = await import('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm');
+  const sb = createClient(CONFIG.supabaseUrl, CONFIG.supabaseAnonKey);
+  let session = (await sb.auth.getSession()).data.session;
+  sb.auth.onAuthStateChange((_e, s) => { session = s; });
+  const ok = async p => { const { data, error } = await p; if (error) throw new Error(error.message); return data; };
+  return {
+    mode: 'cloud',
+    async init() {},
+    isAdmin: () => !!session,
+    async adminLogin(email, pw) {
+      const { data, error } = await sb.auth.signInWithPassword({ email, password: pw });
+      if (error) throw new Error(error.message);
+      session = data.session;
+    },
+    async adminLogout() { await sb.auth.signOut(); session = null; },
+    async listTests({ published } = {}) {
+      let q = sb.from('tests').select('*').order('created_at', { ascending: false });
+      if (published) q = q.eq('published', true);
+      return ok(q);
+    },
+    async getTest(id) { return ok(sb.from('tests').select('*').eq('id', id).maybeSingle()); },
+    async saveTest(t) { return ok(sb.from('tests').upsert(t).select().single()); },
+    async saveTests(list) { await ok(sb.from('tests').upsert(list)); },
+    async deleteTest(id) { await ok(sb.from('tests').delete().eq('id', id)); },
+    async checkGroup(code) { return ok(sb.rpc('check_group', { c: String(code).trim() })); },
+    async listGroups() { return ok(sb.from('groups').select('code,name').order('code')); },
+    async saveGroup(g) { await ok(sb.from('groups').upsert(g)); },
+    async deleteGroup(code) { await ok(sb.from('groups').delete().eq('code', code)); },
+    async saveResult(r) { return (await ok(sb.from('results').insert(r).select('id').single())).id; },
+    async listResults() { return ok(sb.from('results').select(RESULT_LIST_COLS).order('created_at', { ascending: false }).limit(3000)); },
+    async getResult(id) { return ok(sb.from('results').select('*').eq('id', id).maybeSingle()); },
+    async deleteResult(id) { await ok(sb.from('results').delete().eq('id', id)); },
+    async listWritingTasks({ published } = {}) {
+      let q = sb.from('writing_tasks').select('*').order('created_at', { ascending: false });
+      if (published) q = q.eq('published', true);
+      return ok(q);
+    },
+    async getWritingTask(id) { return ok(sb.from('writing_tasks').select('*').eq('id', id).maybeSingle()); },
+    async saveWritingTask(t) { return ok(sb.from('writing_tasks').upsert(t).select().single()); },
+    async deleteWritingTask(id) { await ok(sb.from('writing_tasks').delete().eq('id', id)); },
+    async listVocabSets({ published } = {}) {
+      let q = sb.from('vocab_sets').select('*').order('created_at', { ascending: false });
+      if (published) q = q.eq('published', true);
+      return ok(q);
+    },
+    async getVocabSet(id) { return ok(sb.from('vocab_sets').select('*').eq('id', id).maybeSingle()); },
+    async saveVocabSet(t) { return ok(sb.from('vocab_sets').upsert(t).select().single()); },
+    async deleteVocabSet(id) { await ok(sb.from('vocab_sets').delete().eq('id', id)); },
+    async saveVocabResult(r) { return (await ok(sb.from('vocab_results').insert(r).select('id').single())).id; },
+    async listVocabResults() { return ok(sb.from('vocab_results').select('*').order('created_at', { ascending: false }).limit(5000)); },
+    async deleteVocabResult(id) { await ok(sb.from('vocab_results').delete().eq('id', id)); },
+    async listSpeakingTests({ published } = {}) {
+      let q = sb.from('speaking_tests').select('*').order('created_at', { ascending: false });
+      if (published) q = q.eq('published', true);
+      return ok(q);
+    },
+    async getSpeakingTest(id) { return ok(sb.from('speaking_tests').select('*').eq('id', id).maybeSingle()); },
+    async saveSpeakingTest(t) { return ok(sb.from('speaking_tests').upsert(t).select().single()); },
+    async deleteSpeakingTest(id) { await ok(sb.from('speaking_tests').delete().eq('id', id)); },
+    async checkSpeaking(payload) {
+      const { data, error } = await sb.functions.invoke('check-speaking', { body: payload });
+      let msg = data?.error;
+      if (error && !msg) { try { msg = (await error.context.json()).error; } catch { msg = error.message; } }
+      if (msg || !data?.feedback) throw new Error(msg || 'AI check failed');
+      return data.feedback;
+    },
+    async saveSpeaking(r) { const id = uid(); await ok(sb.from('speaking_submissions').insert({ id, ...r })); return id; },
+    async mySpeakings(name, group) { return ok(sb.rpc('my_speakings', { n: name, g: group })); },
+    async listSpeakings() { return ok(sb.from('speaking_submissions').select('*').order('created_at', { ascending: false }).limit(1000)); },
+    async deleteSpeaking(id) { await ok(sb.from('speaking_submissions').delete().eq('id', id)); },
+    async tgAuth(payload) {
+      const { data, error } = await sb.functions.invoke('tg-auth', { body: payload });
+      let msg = data?.error;
+      if (error && !msg) { try { msg = (await error.context.json()).error; } catch { msg = error.message; } }
+      if (msg) throw new Error(msg);
+      return data;
+    },
+    aiAvailable: true,
+    async checkWriting(payload) {
+      const { data, error } = await sb.functions.invoke('check-writing', { body: payload });
+      let msg = data?.error;
+      if (error && !msg) { try { msg = (await error.context.json()).error; } catch { msg = error.message; } }
+      if (msg || !data?.feedback) throw new Error(msg || 'AI check failed');
+      return data.feedback;
+    },
+    async saveWriting(r) { const id = uid(); await ok(sb.from('writing_submissions').insert({ id, ...r })); return id; },   // o'quvchi o'qiy olmaydi, shuning uchun .select() yo'q
+    async myWritings(name, group) { return ok(sb.rpc('my_writings', { n: name, g: group })); },
+    async listWritings() { return ok(sb.from('writing_submissions').select('*').order('created_at', { ascending: false }).limit(1000)); },
+    async deleteWriting(id) { await ok(sb.from('writing_submissions').delete().eq('id', id)); },
+    async listMocks() { return ok(sb.from('mock_submissions').select('*').order('created_at', { ascending: false }).limit(2000)); },
+    async deleteMock(id) { await ok(sb.from('mock_submissions').delete().eq('id', id)); },
+    async addActivity(name, group, secs) { await sb.rpc('add_activity', { n: name, g: group, secs }); },
+    async listActivity() { return ok(sb.from('activity').select('*').limit(20000)); },
+    async marLogin(l, p) { return ok(sb.rpc('ie_login', { l, p })); },
+    async marLogout(tok) { await sb.rpc('ie_logout', { tok }); },
+    async marStatus(tok) { return ok(sb.rpc('ie_status_t', { tok })); },
+    async marComplete(tok, d, t, sc, tot) { return ok(sb.rpc('ie_complete_t', { tok, d, t, sc, tot })); },
+    async marPublic() { return ok(sb.rpc('ie_public')); },
+    async marAdminLoad() {
+      const [settings, days, students, progress, accounts] = await Promise.all([
+        ok(sb.from('ie_settings').select('*').eq('id', 1).maybeSingle()), ok(sb.from('ie_days').select('*')),
+        ok(sb.from('ie_students').select('*').order('created_at')), ok(sb.from('ie_progress').select('*').limit(20000)),
+        ok(sb.from('ie_accounts').select('id,login,student_name,group_code,expires_on,active,created_at,last_login').order('created_at', { ascending: false }))]);
+      return { settings: settings || { miss_limit: 2, window_days: 10, promo_on: true }, days: Object.fromEntries((days || []).map(x => [x.day, x.tasks])), students: students || [], progress: progress || [], accounts: accounts || [] };
+    },
+    async marAccCreate(n, g, days) { return ok(sb.rpc('ie_admin_create', { n, g, days })); },
+    async marAccReset(id) { return ok(sb.rpc('ie_admin_reset', { aid: id })); },
+    async marAccPatch(id, patch) { await ok(sb.from('ie_accounts').update(patch).eq('id', id)); },
+    async marAccDelete(id) { await ok(sb.from('ie_accounts').delete().eq('id', id)); },
+    async marSaveDays(days) { await ok(sb.from('ie_days').upsert(Object.entries(days).map(([day, tasks]) => ({ day: Number(day), tasks })))); },
+    async marSaveSettings(s) { await ok(sb.from('ie_settings').update(s).eq('id', 1)); },
+    async marUnlock(id) { await ok(sb.rpc('ie_admin_unlock', { sid: id })); },
+    async marPatchStudent(id, patch) { await ok(sb.from('ie_students').update(patch).eq('id', id)); },
+    async uploadFile(file) {
+      const ext = (file.name.split('.').pop() || 'bin').toLowerCase().replace(/[^a-z0-9]/g, '');
+      const path = `${Date.now()}-${Math.random().toString(16).slice(2, 8)}.${ext}`;
+      const { error } = await sb.storage.from('audio').upload(path, file, { contentType: file.type || undefined });
+      if (error) throw new Error(error.message);
+      return sb.storage.from('audio').getPublicUrl(path).data.publicUrl;
+    },
+    canUpload: true,
+  };
+}
+
+export let store = local;
+export async function initStore() {
+  if (cloudConfigured()) store = await makeCloud();
+  await store.init();
+  return store;
+}

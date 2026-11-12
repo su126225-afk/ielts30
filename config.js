@@ -1,0 +1,30 @@
+// ─────────────────────────────────────────────────────────────
+//  Sayt sozlamalari / Site settings
+//  1) Supabase loyihangizni yarating (README.md ga qarang)
+//  2) supabaseUrl va supabaseAnonKey ni shu yerga qo'ying
+//  Bo'sh qoldirsangiz sayt DEMO rejimida (faqat shu brauzerda) ishlaydi.
+// ─────────────────────────────────────────────────────────────
+export const CONFIG = {
+  brand: 'English with Usmonov',
+  teacher: 'Sardor Usmonov',
+  telegramChannel: '@EnglishwithUsmonov',
+  telegramUrl: 'https://t.me/EnglishwithUsmonov',
+  // O'qituvchining shaxsiy Telegram akkaunti (online kurslar uchun murojaat)
+  telegramPersonal: '@SARDOR_USM0NOV',
+  telegramPersonalUrl: 'https://t.me/SARDOR_USM0NOV',
+  // Telegram bilan kirish va kanalga a'zolikni majburiy qilish (faqat Supabase ulanganda ishlaydi).
+  // Funksiya joylanmaguncha requireChannel: false qoldiring.
+  telegramBot: 'multilevelstarbot',
+  requireChannel: false,
+  // Yuklab olinadigan PDF (Writing natijasi) pastki qismidagi ma'lumotlar. Telefon raqamingizni shu yerga yozing.
+  printPhone: '+998 90 897 97 72',
+  printSite: 'https://su126225-afk.github.io/ielts30/',
+  coursesTitle: 'Online courses',
+  coursesText: "IELTS & Multilevel online kurslari. Batafsil ma'lumot va yozilish uchun menga Telegramda yozing.",
+
+  supabaseUrl: 'https://gvngtrhhwjodokjftxko.supabase.co',
+  supabaseAnonKey: 'sb_publishable_ZLvkVK3dQcFBb6jR2zs10A_sj5w2rWw',
+
+  // Faqat DEMO rejimida o'qituvchi paroli (Supabase ulanganda ishlatilmaydi)
+  localAdminPassword: 'admin123',
+};

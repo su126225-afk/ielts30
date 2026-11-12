@@ -1,0 +1,231 @@
+{
+ "days": [
+  {
+   "day": 1,
+   "title": "Full Mock · Test 1",
+   "focus": "Reading: The development of the silk industry · The discovery of a baby mammoth · What makes a musical expert?",
+   "test": 1,
+   "tasks": [
+    {
+     "id": "listening",
+     "type": "listening",
+     "title": "Listening · Part 1–4 (40 savol)",
+     "minutes": 40,
+     "url": "ie-listening-1.html"
+    },
+    {
+     "id": "reading",
+     "type": "reading",
+     "title": "Reading · Passage 1–3 (40 savol)",
+     "minutes": 60,
+     "url": "ie-reading-1.html"
+    },
+    {
+     "id": "writing",
+     "type": "writing",
+     "title": "Writing · Task 1 — AI tekshiradi",
+     "minutes": 20,
+     "ref": "08bd43f1-2036-5a10-9718-d003b8812829"
+    },
+    {
+     "id": "speaking",
+     "type": "speaking",
+     "title": "Speaking · Part 1, 2, 3",
+     "minutes": 14,
+     "note": "Imtihondagidek: Part 1 — 4–5 daqiqa, Part 2 — 1 daqiqa tayyorgarlik + 1–2 daqiqa gapirish, Part 3 — 4–5 daqiqa.",
+     "parts": [
+      {
+       "title": "Part 1 — Work and Studies & Teachers",
+       "time": "4–5 min",
+       "questions": [
+        "Do you work or are you a student?",
+        "What work do you do? / What subjects are you studying?",
+        "Why did you choose that job?",
+        "Would you like to be a teacher?",
+        "Do you think you could be a teacher?",
+        "Did (Do) you have a favourite teacher?",
+        "How does this teacher help you?"
+       ]
+      },
+      {
+       "title": "Part 2 — Place you'd like to visit in your free time",
+       "time": "1 + 2 min",
+       "cue": "Describe a place you’d like to visit in your free time.\nYou should say:\n• where it is\n• what you will do there\n• how long you will stay there\n• why you’d like to visit it"
+      },
+      {
+       "title": "Part 3 — Travelling, Rest",
+       "time": "4–5 min",
+       "questions": [
+        "Why do some people prefer to travel in their own country rather than going abroad?",
+        "Some people don’t like to travel abroad. Why?",
+        "Why do people choose to travel or live abroad?"
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "day": 2,
+   "title": "Full Mock · Test 4",
+   "focus": "Reading: When Maps were Made for the Public · Preserving Antarctic History · Flower Power",
+   "test": 4,
+   "tasks": [
+    {
+     "id": "listening",
+     "type": "listening",
+     "title": "Listening · Part 1–4 (40 savol)",
+     "minutes": 40,
+     "url": "ie-listening-4.html"
+    },
+    {
+     "id": "reading",
+     "type": "reading",
+     "title": "Reading · Passage 1–3 (40 savol)",
+     "minutes": 60,
+     "url": "ie-reading-4.html"
+    },
+    {
+     "id": "writing",
+     "type": "writing",
+     "title": "Writing · Task 2 — AI tekshiradi",
+     "minutes": 40,
+     "ref": "39c65403-6229-50f6-8bfc-f6175f08f952"
+    },
+    {
+     "id": "speaking",
+     "type": "speaking",
+     "title": "Speaking · Part 1, 2, 3",
+     "minutes": 14,
+     "note": "Imtihondagidek: Part 1 — 4–5 daqiqa, Part 2 — 1 daqiqa tayyorgarlik + 1–2 daqiqa gapirish, Part 3 — 4–5 daqiqa.",
+     "parts": [
+      {
+       "title": "Part 1 — Hometown & Dreams and Ambitions",
+       "time": "4–5 min",
+       "questions": [
+        "Please describe your hometown a little.",
+        "What is your town well-known for?",
+        "Do you like your hometown?",
+        "What was your dream when you were a child?",
+        "Are you the kind of person who sticks to dreams?",
+        "Do you think you are an ambitious person?",
+        "Are you an ambitious person?"
+       ]
+      },
+      {
+       "title": "Part 2 — Special cake",
+       "time": "1 + 2 min",
+       "cue": "Describe a special cake you received.\nYou should say:\n• what kind of cake it was\n• when you had it\n• who you were with\n• why it was special"
+      },
+      {
+       "title": "Part 3 — Food and Cooking",
+       "time": "4–5 min",
+       "questions": [
+        "What food do people in your country eat on special occasions?",
+        "What is the difference between special food in your country and other countries?",
+        "Why do many people like to spend a lot of money on food on special days?",
+        "What do you think of people using their mobile phones during a meal?",
+        "Do you think it’s good to communicate when eating with your family?",
+        "More and more people are unwilling to cook. Why is this happening?"
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "day": 3,
+   "title": "Full Mock · Test 5",
+   "focus": "Reading: The Importance of Business Cards · The importance of law · The Voynich Manuscript",
+   "test": 5,
+   "tasks": [
+    {
+     "id": "listening",
+     "type": "listening",
+     "title": "Listening · Part 1–4 (40 savol)",
+     "minutes": 40,
+     "url": "ie-listening-5.html"
+    },
+    {
+     "id": "reading",
+     "type": "reading",
+     "title": "Reading · Passage 1–3 (40 savol)",
+     "minutes": 60,
+     "url": "ie-reading-5.html"
+    },
+    {
+     "id": "writing",
+     "type": "writing",
+     "title": "Writing · Task 1 — AI tekshiradi",
+     "minutes": 20,
+     "ref": "38d724b9-3cdf-5976-a033-809abc259418"
+    },
+    {
+     "id": "speaking",
+     "type": "speaking",
+     "title": "Speaking · Part 1, 2, 3",
+     "minutes": 14,
+     "note": "Imtihondagidek: Part 1 — 4–5 daqiqa, Part 2 — 1 daqiqa tayyorgarlik + 1–2 daqiqa gapirish, Part 3 — 4–5 daqiqa.",
+     "parts": [
+      {
+       "title": "Part 1 — Home and Accommodation & Mirrors",
+       "time": "4–5 min",
+       "questions": [
+        "What colour would you choose to paint the walls of your room?",
+        "What colour would you never use in your home?",
+        "Can you describe the place where you live?",
+        "Would you use mirrors to decorate your room?",
+        "Do you usually take a mirror with you?",
+        "How often do you use a mirror?",
+        "Do you like looking at yourself in a mirror?"
+       ]
+      },
+      {
+       "title": "Part 2 — Tall building",
+       "time": "1 + 2 min",
+       "cue": "Describe a tall building in your town that you like or dislike.\nYou should say:\n• where this building is\n• what it looks like\n• what it is used for\n• explain why you like or dislike it"
+      },
+      {
+       "title": "Part 3 — Tall Buildings",
+       "time": "4–5 min",
+       "questions": [
+        "What do you think buildings will be like in the future?",
+        "Which do most people prefer, living in a bungalow or in a tall building?",
+        "Why are taller and taller buildings being constructed nowadays?"
+       ]
+      }
+     ]
+    }
+   ]
+  }
+ ],
+ "writing": [
+  {
+   "id": "08bd43f1-2036-5a10-9718-d003b8812829",
+   "kind": "task1",
+   "title": "Marathon · IELTS 30 · Day 1 · Writing Task 1",
+   "min_words": 150,
+   "max_words": 0,
+   "image_url": "https://su126225-afk.github.io/ielts30/ie-w1-task1.png",
+   "prompt": "You should spend about 20 minutes on this task.\n\nThe graph below shows the percentage of female members of parliament in five European countries, from 2000 to 2012.\n\nSummarise the information by selecting and reporting the main features, and make comparisons where relevant.\n\nWrite at least 150 words."
+  },
+  {
+   "id": "39c65403-6229-50f6-8bfc-f6175f08f952",
+   "kind": "task2",
+   "title": "Marathon · IELTS 30 · Day 2 · Writing Task 2",
+   "min_words": 250,
+   "max_words": 0,
+   "image_url": "",
+   "prompt": "You should spend about 40 minutes on this task.\n\nWrite about the following topic:\n\nFilm stars and celebrities often share their views on public matters that have little to do with their profession. Is this a positive or negative development?\n\nGive reasons for your answer and include any relevant examples from your own knowledge or experience.\n\nWrite at least 250 words."
+  },
+  {
+   "id": "38d724b9-3cdf-5976-a033-809abc259418",
+   "kind": "task1",
+   "title": "Marathon · IELTS 30 · Day 3 · Writing Task 1",
+   "min_words": 150,
+   "max_words": 0,
+   "image_url": "https://su126225-afk.github.io/ielts30/ie-w5-task1.png",
+   "prompt": "You should spend about 20 minutes on this task.\n\nThe charts show information about Internet use in five European countries in 2000.\n\nSummarise the information by selecting and reporting the main features, and make comparisons where relevant.\n\nWrite at least 150 words."
+  }
+ ]
+}
