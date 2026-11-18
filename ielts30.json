@@ -197,6 +197,276 @@
      ]
     }
    ]
+  },
+  {
+   "day": 4,
+   "title": "Full Mock · Test 6",
+   "focus": "Reading: The life of Beatrix Potter · The Purpose of Facial Expressions · Let's all be friends",
+   "test": 6,
+   "tasks": [
+    {
+     "id": "listening",
+     "type": "listening",
+     "title": "Listening · Part 1–4 (40 savol)",
+     "minutes": 40,
+     "url": "ie-listening-6.html"
+    },
+    {
+     "id": "reading",
+     "type": "reading",
+     "title": "Reading · Passage 1–3 (40 savol)",
+     "minutes": 60,
+     "url": "ie-reading-6.html"
+    },
+    {
+     "id": "writing",
+     "type": "writing",
+     "title": "Writing · Task 2 — AI tekshiradi",
+     "minutes": 40,
+     "ref": "f7a732b8-a991-55a4-8605-3a375b964fcd"
+    },
+    {
+     "id": "speaking",
+     "type": "speaking",
+     "title": "Speaking · Part 1, 2, 3",
+     "minutes": 14,
+     "note": "Imtihondagidek: Part 1 — 4–5 daqiqa, Part 2 — 1 daqiqa tayyorgarlik + 1–2 daqiqa gapirish, Part 3 — 4–5 daqiqa.",
+     "parts": [
+      {
+       "title": "Part 1 — Work and Studies & Tidiness",
+       "time": "4–5 min",
+       "questions": [
+        "Do you work or are you a student?",
+        "What work do you do? / What subjects are you studying?",
+        "Why did you choose that job?",
+        "Would you say you are a tidy person?",
+        "Do you like to keep things tidy?",
+        "How do you keep things tidy?",
+        "Do you think it is possible for people to be tidy all the time?"
+       ]
+      },
+      {
+       "title": "Part 2 — Getting up early",
+       "time": "1 + 2 min",
+       "cue": "Describe an occasion when you got up extremely early.\nYou should say:\n• when this happened\n• what you needed to do on that day\n• who you were with\n• how you felt about getting up early on that day"
+      },
+      {
+       "title": "Part 3 — Getting Up Early",
+       "time": "4–5 min",
+       "questions": [
+        "Why do people get up early?",
+        "Are there any situations when it’s not good to arrive early?",
+        "Is it good to arrive early in any situation?",
+        "Why do some people stay up late at night?",
+        "Is it easy to get up early?"
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "day": 5,
+   "title": "Full Mock · Test 7",
+   "focus": "Reading: The Trans-Australian Railway (TAR) · How plants fight back · Conscious and Unconscious Thought",
+   "test": 7,
+   "tasks": [
+    {
+     "id": "listening",
+     "type": "listening",
+     "title": "Listening · Part 1–4 (40 savol)",
+     "minutes": 40,
+     "url": "ie-listening-7.html"
+    },
+    {
+     "id": "reading",
+     "type": "reading",
+     "title": "Reading · Passage 1–3 (40 savol)",
+     "minutes": 60,
+     "url": "ie-reading-7.html"
+    },
+    {
+     "id": "writing",
+     "type": "writing",
+     "title": "Writing · Task 1 — AI tekshiradi",
+     "minutes": 20,
+     "ref": "6846ddf5-4520-55dc-b2b9-0bcdafafbf45"
+    },
+    {
+     "id": "speaking",
+     "type": "speaking",
+     "title": "Speaking · Part 1, 2, 3",
+     "minutes": 14,
+     "note": "Imtihondagidek: Part 1 — 4–5 daqiqa, Part 2 — 1 daqiqa tayyorgarlik + 1–2 daqiqa gapirish, Part 3 — 4–5 daqiqa.",
+     "parts": [
+      {
+       "title": "Part 1 — Hometown & Websites",
+       "time": "4–5 min",
+       "questions": [
+        "Please describe your hometown a little.",
+        "What is your town well-known for?",
+        "Do you like your hometown?",
+        "What kinds of websites do you often visit?",
+        "What kinds of websites are popular in your country?",
+        "What is your favourite website?",
+        "Are there any changes to the websites you often visit?"
+       ]
+      },
+      {
+       "title": "Part 2 — New law",
+       "time": "1 + 2 min",
+       "cue": "Describe a new law you would like to introduce in your country.\nYou should say:\n• what law it is, what changes it brings\n• whether it will be popular\n• how you came up with the new law\n• how you feel about it"
+      },
+      {
+       "title": "Part 3 — Rules and Laws",
+       "time": "4–5 min",
+       "questions": [
+        "Do people in your country usually obey the law?",
+        "What are some rules that exist in schools or workplaces in your country?",
+        "What kind of behaviour is considered good behaviour?",
+        "How can parents teach children to obey rules?",
+        "What are the benefits of obeying rules?",
+        "Do you think children can learn about the law outside of school?"
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "day": 6,
+   "title": "Full Mock · Test 8",
+   "focus": "Reading: Back to wild · The discovery of a baby mammoth · Recording History",
+   "test": 8,
+   "tasks": [
+    {
+     "id": "listening",
+     "type": "listening",
+     "title": "Listening · Part 1–4 (40 savol)",
+     "minutes": 40,
+     "url": "ie-listening-8.html"
+    },
+    {
+     "id": "reading",
+     "type": "reading",
+     "title": "Reading · Passage 1–3 (40 savol)",
+     "minutes": 60,
+     "url": "ie-reading-8.html"
+    },
+    {
+     "id": "writing",
+     "type": "writing",
+     "title": "Writing · Task 2 — AI tekshiradi",
+     "minutes": 40,
+     "ref": "ef2f51e7-8a9c-5f9f-8c98-d16d8f4b36fa"
+    },
+    {
+     "id": "speaking",
+     "type": "speaking",
+     "title": "Speaking · Part 1, 2, 3",
+     "minutes": 14,
+     "note": "Imtihondagidek: Part 1 — 4–5 daqiqa, Part 2 — 1 daqiqa tayyorgarlik + 1–2 daqiqa gapirish, Part 3 — 4–5 daqiqa.",
+     "parts": [
+      {
+       "title": "Part 1 — Home and Accommodation & Watches",
+       "time": "4–5 min",
+       "questions": [
+        "What colour would you choose to paint the walls of your room?",
+        "What colour would you never use in your home?",
+        "Can you describe the place where you live?",
+        "Do you like to wear watches?",
+        "Do you think a watch is important for you?",
+        "Have you ever received a watch as a gift?",
+        "Why do people like expensive watches?"
+       ]
+      },
+      {
+       "title": "Part 2 — Person who loves to grow plants",
+       "time": "1 + 2 min",
+       "cue": "Describe a person you know who loves to grow plants (vegetables, fruits, flowers).\nYou should say:\n• who this person is\n• what this person grows\n• where this person grows them\n• why this person loves to grow plants"
+      },
+      {
+       "title": "Part 3 — Growing Plants",
+       "time": "4–5 min",
+       "questions": [
+        "Do people in your country like to grow plants?",
+        "What are the advantages of growing plants at home?",
+        "Do people like to grow vegetables in your country?",
+        "What are the advantages of growing vegetables at home?",
+        "How do people feel when they eat vegetables that they grew on their own?"
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "day": 7,
+   "title": "Full Mock · Test 9",
+   "focus": "Reading: The Cult of Perfect · Depression may reduce the amount of white matter in the brain · Forgetting",
+   "test": 9,
+   "tasks": [
+    {
+     "id": "listening",
+     "type": "listening",
+     "title": "Listening · Part 1–4 (40 savol)",
+     "minutes": 40,
+     "url": "ie-listening-9.html"
+    },
+    {
+     "id": "reading",
+     "type": "reading",
+     "title": "Reading · Passage 1–3 (40 savol)",
+     "minutes": 60,
+     "url": "ie-reading-9.html"
+    },
+    {
+     "id": "writing",
+     "type": "writing",
+     "title": "Writing · Task 1 — AI tekshiradi",
+     "minutes": 20,
+     "ref": "3eb9d5b3-80dd-50be-b8b6-7c12cf22fd8c"
+    },
+    {
+     "id": "speaking",
+     "type": "speaking",
+     "title": "Speaking · Part 1, 2, 3",
+     "minutes": 14,
+     "note": "Imtihondagidek: Part 1 — 4–5 daqiqa, Part 2 — 1 daqiqa tayyorgarlik + 1–2 daqiqa gapirish, Part 3 — 4–5 daqiqa.",
+     "parts": [
+      {
+       "title": "Part 1 — Work and Studies & Shopping",
+       "time": "4–5 min",
+       "questions": [
+        "Do you work or are you a student?",
+        "What work do you do? / What subjects are you studying?",
+        "Why did you choose that job?",
+        "Do you like shopping?",
+        "How often do you go shopping?",
+        "Do you compare prices when you shop?",
+        "Is it difficult for you to make choices when you shop?"
+       ]
+      },
+      {
+       "title": "Part 2 — Childhood friend",
+       "time": "1 + 2 min",
+       "cue": "Describe a friend from your childhood.\nYou should say:\n• who this person is\n• how you met each other\n• what you did together\n• explain why you liked him or her"
+      },
+      {
+       "title": "Part 3 — Friendship, Social Media",
+       "time": "4–5 min",
+       "questions": [
+        "Do you still keep in touch with your friends from childhood?",
+        "What’s the difference between having younger friends and older friends?",
+        "Has technology changed people’s friendships? How?",
+        "What do you think of communicating via social media?",
+        "Will online social media replace face-to-face communication?",
+        "Is it necessary for kids to have some close friends?"
+       ]
+      }
+     ]
+    }
+   ]
   }
  ],
  "writing": [
@@ -226,6 +496,42 @@
    "max_words": 0,
    "image_url": "https://su126225-afk.github.io/ielts30/ie-w5-task1.png",
    "prompt": "You should spend about 20 minutes on this task.\n\nThe charts show information about Internet use in five European countries in 2000.\n\nSummarise the information by selecting and reporting the main features, and make comparisons where relevant.\n\nWrite at least 150 words."
+  },
+  {
+   "id": "f7a732b8-a991-55a4-8605-3a375b964fcd",
+   "kind": "task2",
+   "title": "Marathon · IELTS 30 · Day 4 · Writing Task 2",
+   "min_words": 250,
+   "max_words": 0,
+   "image_url": "",
+   "prompt": "You should spend about 40 minutes on this task.\n\nWrite about the following topic:\n\nSome people think that all young people should be required to have full-time education until they are at least 18 years old. To what extent do you agree or disagree?\n\nGive reasons for your answer and include any relevant examples from your own knowledge or experience.\n\nWrite at least 250 words."
+  },
+  {
+   "id": "6846ddf5-4520-55dc-b2b9-0bcdafafbf45",
+   "kind": "task1",
+   "title": "Marathon · IELTS 30 · Day 5 · Writing Task 1",
+   "min_words": 150,
+   "max_words": 0,
+   "image_url": "https://images.writing9.com/9ef0b6fee8664db772404b95467568d0.png",
+   "prompt": "You should spend about 20 minutes on this task.\n\nThe graph shows the information about international conferences in 3 capital cities in 1980-2010.\n\nSummarise the information by selecting and reporting the main features, and make comparisons where relevant.\n\nWrite at least 150 words."
+  },
+  {
+   "id": "ef2f51e7-8a9c-5f9f-8c98-d16d8f4b36fa",
+   "kind": "task2",
+   "title": "Marathon · IELTS 30 · Day 6 · Writing Task 2",
+   "min_words": 250,
+   "max_words": 0,
+   "image_url": "",
+   "prompt": "You should spend about 40 minutes on this task.\n\nWrite about the following topic:\n\nSome people believe that it is better to live and work in a vertical city with multiple tall buildings, as compared to a horizontal city with fewer tall buildings. Discuss both views and give your own opinion.\n\nGive reasons for your answer and include any relevant examples from your own knowledge or experience.\n\nWrite at least 250 words."
+  },
+  {
+   "id": "3eb9d5b3-80dd-50be-b8b6-7c12cf22fd8c",
+   "kind": "task1",
+   "title": "Marathon · IELTS 30 · Day 7 · Writing Task 1",
+   "min_words": 150,
+   "max_words": 0,
+   "image_url": "https://engnovatewebsitestorage.blob.core.windows.net/ielts-writing-task-1-images/e55cb3de2a23cd28",
+   "prompt": "You should spend about 20 minutes on this task.\n\nThe graph below shows the percentage of workers in 5 different European countries with a day or more absence from 1991 to 2001.\n\nSummarise the information by selecting and reporting the main features, and make comparisons where relevant.\n\nWrite at least 150 words."
   }
  ]
 }
