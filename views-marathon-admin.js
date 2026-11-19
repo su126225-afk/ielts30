@@ -22,7 +22,8 @@ export async function marathonTab(body) {
   const active = accs.filter(a => a.active && a.expires_on >= today).length;
   body.innerHTML = `
     <div class="panel"><div class="row between wrapx"><div><b>1. Kontent</b><div class="muted" style="font-size:14px">Serverda ${daysSynced} kunlik reja bor · sayt faylida (ielts30.json) ${bundled} kun. Yangi kunlar qo'shilganda shu tugmani bosing.</div></div>
-      <button class="btn primary sm" data-act="marSync">${icon('arrow', 14)} Kontentni yuklash / yangilash</button></div></div>
+      <button class="btn primary sm" data-act="marSync">${icon('arrow', 14)} Kontentni yuklash / yangilash</button>
+      <button class="btn sm" data-act="ieCheck">🔍 Fayllarni tekshirish</button> <button class="btn sm" data-act="ieSpk">🗣 Speaking natijalari</button></div></div>
 
     <div class="panel mt"><b>2. Yangi o'quvchi (login + parol)</b> <small class="muted">— guruh: IELTS30</small>
       <div class="row wrapx mt" style="gap:10px;align-items:flex-end">
@@ -157,4 +158,39 @@ actions.ieProg = el => {
     <p class="muted">Ochiq: Day ${s.open_upto} gacha · Listening/Reading — to'g'ri javoblar soni, Writing — AI band.</p>
     <div class="tablewrap"><table><thead><tr><th>Kun</th>${heads.map(h => `<th>${N[h] || esc(h)}</th>`).join('')}</tr></thead><tbody>${rows}</tbody></table></div>
     <p class="note">Listening/Reading javoblari va Writing matnlari — asosiy saytdagi Teacher panelda (IELTS Mock: Test 101+, Writing).</p>`, true);
+};
+
+// ── Fayllarni tekshirish: har bir kun vazifasi uchun sahifa / audio / rasm mavjudmi ──
+actions.ieCheck = async el => {
+  el.disabled = true; el.textContent = 'Tekshirilmoqda…';
+  try {
+    const mj = await (await fetch('ielts30.json?t=' + Date.now(), { cache: 'no-store' })).json();
+    const exists = async u => { try { let r = await fetch(u + (u.includes('?') ? '&' : '?') + 't=' + Date.now(), { method: 'HEAD', cache: 'no-store' }); if (r.status === 405) r = await fetch(u, { cache: 'no-store' }); return r.ok; } catch { return false; } };
+    const checks = new Map();   // url -> [kun / vazifa]
+    const add = (u, w) => { if (u && !/^https?:/.test(u)) { if (!checks.has(u)) checks.set(u, []); checks.get(u).push(w); } };
+    const html = [];
+    for (const d of mj.days) for (const t of d.tasks) {
+      const w = `Day ${d.day} · ${t.type}`;
+      if (t.url) add(t.url.split('?')[0], w);
+      if (t.page) add(String(t.page).split('?')[0], w);
+      (t.parts || []).forEach(p => (p.images || []).forEach(u => add(u, w)));
+      if (t.audio) add(t.audio, w);
+      if (t.type === 'listening' || t.type === 'reading') { const n = (JSON.stringify(t).match(/ie-(?:listening|reading)-\d+\.html/) || [])[0]; if (n) { add(n, w); if (n.includes('listening')) add(n.replace('.html', '.mp3'), w); } }
+    }
+    const bad = [];
+    await Promise.all([...checks.entries()].map(async ([u, w]) => { if (!(await exists(u))) bad.push([u, [...new Set(w)].join(', ')]); }));
+    const wr = new Map((mj.writing || []).map(x => [x.id, x]));
+    for (const d of mj.days) for (const t of d.tasks) if (t.type === 'writing' && t.ref && !wr.has(t.ref)) bad.push(['writing: ' + t.ref, `Day ${d.day}`]);
+    modal(`<div class="row between"><h2>Fayllar tekshiruvi</h2><button class="icon-btn" data-act="closeModal">${icon('x', 18)}</button></div>
+      <p>${bad.length ? `<span class="badge bad">${bad.length} ta muammo</span>` : '<span class="badge ok">✓ Hammasi joyida</span>'} · tekshirildi: ${checks.size} fayl, ${mj.days.length} kun</p>
+      ${bad.length ? `<div class="tablewrap"><table><thead><tr><th>Yo'q fayl</th><th>Qaysi kun</th></tr></thead><tbody>${bad.map(b => `<tr><td><b>${esc(b[0])}</b></td><td>${esc(b[1])}</td></tr>`).join('')}</tbody></table></div><p class="note">Bu fayllarni GitHub reposiga yuklang (Add file → Upload files).</p>` : ''}`, true);
+  } catch (e) { toast(e.message, 'bad'); }
+  el.disabled = false; el.textContent = '🔍 Fayllarni tekshirish';
+};
+actions.ieSpk = async () => {
+  try {
+    const rows = await store.listIeSpeaking();
+    modal(`<div class="row between"><h2>Speaking natijalari (AI)</h2><button class="icon-btn" data-act="closeModal">${icon('x', 18)}</button></div>
+      ${rows.length ? `<div class="tablewrap"><table><thead><tr><th>Sana</th><th>O'quvchi</th><th>Day</th><th>Band</th><th>Javoblar</th></tr></thead><tbody>${rows.map(r => `<tr><td class="muted">${String(r.created_at).slice(5, 16).replace('T', ' ')}</td><td><b>${esc(r.student_name)}</b></td><td>${r.day ?? ''}</td><td><b>${esc(r.band || '')}</b><br><small class="muted">F ${esc(String(r.feedback?.fluency ?? ''))} · L ${esc(String(r.feedback?.lexical ?? ''))} · G ${esc(String(r.feedback?.grammar ?? ''))}</small></td><td style="max-width:420px"><small>${(r.transcripts || []).map(t => '<b>' + esc(t.title) + ':</b> ' + esc(String(t.text).slice(0, 300))).join('<br>')}</small></td></tr>`).join('')}</tbody></table></div>` : '<div class="empty">Hali speaking topshirilmagan.</div>'}`, true);
+  } catch (e) { toast(e.message, 'bad'); }
 };

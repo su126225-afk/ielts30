@@ -5,6 +5,7 @@ import { CONFIG } from './config.js';
 import { esc } from './logic.js';
 import { dayState } from './marlogic.js';
 import { $, actions, toast, icon, go, S, modal, closeModal } from './ui.js';
+import { mountSpeakingAI } from './views-speaking.js';
 
 export const TOTAL_DAYS = 30;
 export const FREE_DAYS = 1;
@@ -188,10 +189,12 @@ export async function marathonTask(root, dStr, task) {
       ${p.cue ? `<div class="ie-cue mt">${esc(p.cue)}</div>` : ''}
       ${(p.images || []).length ? `<div class="row mt" style="gap:12px;flex-wrap:wrap">${p.images.map(u => `<img src="${esc(u)}" alt="" style="max-width:100%;width:340px;border-radius:14px;border:1px solid var(--border)">`).join('')}</div>` : ''}
       ${(p.questions || []).length ? `<ol style="margin:8px 0 0;padding-left:22px;line-height:1.8">${p.questions.map(q => `<li>${esc(q)}</li>`).join('')}</ol>` : ''}</div>`).join('')}
-    <div class="panel mt"><b>Qanday topshiriladi?</b><ol style="margin:8px 0 0;padding-left:22px;line-height:1.8"><li>Har bir Part uchun javobingizni telefonda ovozga yozib oling.</li><li>Ovozli xabarlarni Telegramda ustozga yuboring: <a href="${CONFIG.telegramPersonalUrl}" target="_blank" rel="noopener"><b>${esc(CONFIG.telegramPersonal)}</b></a>. Ismingiz va kun raqamini (Day ${day}) yozing.</li><li>Yuborgach, pastdagi tugmani bosing.</li></ol>
+    <div id="spAI"></div>
+    <div class="panel mt"><b>Ixtiyoriy: ovozni ustozga ham yuboring</b><ol style="margin:8px 0 0;padding-left:22px;line-height:1.8"><li>Har bir Part uchun javobingizni telefonda ovozga yozib oling.</li><li>Ovozli xabarlarni Telegramda ustozga yuboring: <a href="${CONFIG.telegramPersonalUrl}" target="_blank" rel="noopener"><b>${esc(CONFIG.telegramPersonal)}</b></a>. Ismingiz va kun raqamini (Day ${day}) yozing.</li><li>Yuborgach, pastdagi tugmani bosing.</li></ol>
       <div class="ctas"><a class="btn" href="${CONFIG.telegramPersonalUrl}" target="_blank" rel="noopener">${icon('send', 15)} Telegramni ochish</a></div></div>
     <label class="row mt" style="gap:10px;align-items:center"><input type="checkbox" data-act="spCheck"> <span>Ovozli javoblarni ustozga yubordim</span></label>
     <div class="ctas mt"><button class="btn primary lg" id="spDone" data-act="spDone" disabled>${icon('check', 18)} Bajardim</button></div></div>`;
+  mountSpeakingAI($('#spAI'), day, t);
 }
 actions.spCheck = el => { $('#spDone').disabled = !el.checked; };
 actions.spDone = async el => {

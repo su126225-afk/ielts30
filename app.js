@@ -8,11 +8,13 @@ import * as W from './views-writing.js';
 import * as A from './views-admin.js';
 import * as MA from './views-marathon.js';
 import * as GM from './views-game.js';
+import { topView } from './views-top.js';
 import { startActivity } from './activity.js';
 
 const routes = [
   [/^\/?$/, MA.marathonHome],
   [/^\/marathon$/, MA.marathonHome],
+  [/^\/top$/, topView],
   [/^\/marathon\/(\d+)$/, MA.marathonDay],
   [/^\/marathon\/(\d+)\/([\w-]+)$/, MA.marathonTask],
   [/^\/game\/([\w-]+)$/, GM.gameView],
@@ -28,6 +30,7 @@ function renderNav() {
   $('#nav').innerHTML = `<div class="wrap">
     <a class="brand" href="#/"><span class="logo">${icon('spark', 20)}</span>IELTS 30 <small class="muted" style="font-weight:500;margin-left:6px">· ${esc(CONFIG.teacher)}</small></a>
     <div class="navright">
+      <a class="icon-btn" href="#/top" title="Reyting">🏆</a>
       <a class="icon-btn" href="${CONFIG.telegramPersonalUrl}" target="_blank" rel="noopener" title="${esc(CONFIG.telegramPersonal)}">${icon('send', 18)}</a>
       <button class="icon-btn" data-act="theme" title="Theme">${icon(document.documentElement.dataset.theme !== 'dark' ? 'moon' : 'sun', 18)}</button>
       ${a?.token ? `<span class="studentchip"><span class="av">${esc(initials(a.name))}</span>${esc(a.name.split(' ')[0])}</span>` : '<button class="btn primary sm" data-act="marLoginOpen">Kirish</button>'}

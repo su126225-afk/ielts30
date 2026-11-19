@@ -99,6 +99,10 @@ const local = {
   async listSpeakings() { return LS.get('ssubs', []).slice().sort(byNewest); },
   async deleteSpeaking(id) { LS.set('ssubs', LS.get('ssubs', []).filter(w => w.id !== id)); },
   async tgAuth() { throw new Error('Telegram login needs Supabase'); },
+  async checkIeSpeaking() { throw new Error('AI tekshiruv faqat Supabase ulanganda ishlaydi.'); },
+  async saveIeSpeaking(r) { const rec = { ...r, id: uid(), created_at: new Date().toISOString() }; const a = LS.get('iespk', []); a.push(rec); LS.set('iespk', a); return rec.id; },
+  async listIeSpeaking() { return LS.get('iespk', []).slice().sort(byNewest); },
+  async marTop() { return []; },
   aiAvailable: false,
   async checkWriting() { throw new Error('AI tekshiruv faqat Supabase ulanganda ishlaydi (README ga qarang).'); },
   async saveWriting(r) { const rec = { ...r, id: uid(), created_at: new Date().toISOString() }; const a = LS.get('wsubs', []); a.push(rec); LS.set('wsubs', a); return rec.id; },
@@ -234,6 +238,16 @@ async function makeCloud() {
       if (msg) throw new Error(msg);
       return data;
     },
+    async checkIeSpeaking(payload) {
+      const { data, error } = await sb.functions.invoke('check-ielts-speaking', { body: payload });
+      let msg = data?.error;
+      if (error && !msg) { try { msg = (await error.context.json()).error; } catch { msg = error.message; } }
+      if (msg || !data?.feedback) throw new Error(msg || 'AI check failed');
+      return data.feedback;
+    },
+    async saveIeSpeaking(r) { await ok(sb.from('ie_speaking').insert({ id: uid(), ...r })); },
+    async listIeSpeaking() { return ok(sb.from('ie_speaking').select('*').order('created_at', { ascending: false }).limit(500)); },
+    async marTop() { return (await ok(sb.rpc('ie_top'))) || []; },
     aiAvailable: true,
     async checkWriting(payload) {
       const { data, error } = await sb.functions.invoke('check-writing', { body: payload });
