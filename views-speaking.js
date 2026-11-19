@@ -1,7 +1,7 @@
 // IELTS 30: AI Speaking — o'quvchi gapiradi (brauzer matnga aylantiradi), AI band va xatolarni ko'rsatadi.
 import { store } from './store.js';
 import { esc } from './logic.js';
-import { $, $$, actions, inputs, toast, icon } from './ui.js';
+import { $, $$, actions, inputs, toast, icon, S } from './ui.js';
 import { marTaskDone, getAcc, reasonText } from './views-marathon.js';
 
 const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -19,17 +19,15 @@ function items(t) {
   return out;
 }
 
-export function mountSpeakingAI(box, day, task) {
-  stopRec();
-  ST = { day, task, items: items(task), busy: false, done: false };
+function renderReview(box, msg) {
   box.innerHTML = `<div class="panel mt" id="spaiPanel">
-    <div class="row between wrapx"><b>🤖 AI bilan tekshirish</b><span class="badge">Band + xatolar</span></div>
-    <p class="muted" style="margin:6px 0 0">Mikrofon tugmasini bosib inglizcha gapiring — javob matnga aylanadi (Chrome / Edge / Android). Matnni qo'lda tuzatish yoki yozish ham mumkin.${SR ? '' : ' <b>Bu brauzerda ovoz→matn ishlamaydi, javobni yozing yoki Chrome ochib ko\'ring.</b>'}</p>
+    <div class="row between wrapx"><b>🤖 Javoblarni tekshirish</b><span class="badge">Band + xatolar</span></div>
+    <p class="muted" style="margin:6px 0 0">${msg}</p>
     <div id="spaiList">${ST.items.map((it, i) => `<div class="panel mt" style="background:var(--bg2,transparent)">
-      <div class="row between wrapx"><span class="badge">${esc(it.title)}</span><span class="muted" id="spwc${i}">0 so'z</span></div>
+      <div class="row between wrapx"><span class="badge">${esc(it.title)}</span><span class="muted" id="spwc${i}">${wc(it.text)} so'z</span></div>
       <p style="margin:8px 0"><b>${esc(it.label)}</b></p>
-      <textarea class="inp" id="spt${i}" rows="3" data-in="spaiText" data-i="${i}" placeholder="Javobingiz shu yerda ko'rinadi…" style="width:100%"></textarea>
-      <div class="ctas" style="margin-top:8px">${SR ? `<button class="btn sm" data-act="spaiMic" data-i="${i}" id="spmic${i}">${icon('mic', 15)} Gapirish</button>` : ''}<button class="btn sm" data-act="spaiClear" data-i="${i}">Tozalash</button></div></div>`).join('')}</div>
+      <textarea class="inp" id="spt${i}" rows="3" data-in="spaiText" data-i="${i}" placeholder="Javobingiz shu yerda ko'rinadi…" style="width:100%">${esc(it.text)}</textarea>
+      <div class="ctas" style="margin-top:8px">${SR ? `<button class="btn sm" data-act="spaiMic" data-i="${i}" id="spmic${i}">${icon('mic', 15)} Qayta gapirish</button>` : ''}<button class="btn sm" data-act="spaiClear" data-i="${i}">Tozalash</button></div></div>`).join('')}</div>
     <div class="ctas mt"><button class="btn primary lg" data-act="spaiCheck" id="spaiGo">${icon('spark', 18)} AI tekshirsin</button></div>
     <div id="spaiOut"></div></div>`;
 }
@@ -51,7 +49,7 @@ actions.spaiMic = el => {
   r.onerror = e => { if (e.error === 'not-allowed' || e.error === 'service-not-allowed') toast("Mikrofonga ruxsat bering", 'bad'); stopRec(); };
   r.onend = () => { if (REC === r) { try { r.start(); } catch { stopRec(); } } };   // jim qolsa ham davom etadi
   try { r.start(); REC = r; el.classList.add('primary'); el.innerHTML = icon('mic', 15) + ' To\'xtatish'; } catch { toast('Mikrofon ishga tushmadi', 'bad'); }
-  const reset = () => { $$('[id^=spmic]').forEach(b => { b.innerHTML = icon('mic', 15) + ' Gapirish'; }); };
+  const reset = () => { $$('[id^=spmic]').forEach(b => { b.innerHTML = icon('mic', 15) + ' Qayta gapirish'; }); };
   const old = r.onend; r.onend = () => { reset(); old(); };
 };
 const bar = (l, v) => `<div style="min-width:120px;text-align:center"><div class="muted" style="font-size:12px">${l}</div><div style="font-size:26px;font-weight:800">${esc(String(v ?? '—'))}</div></div>`;
@@ -78,4 +76,90 @@ actions.spaiCheck = async el => {
     out.scrollIntoView({ behavior: 'smooth', block: 'start' });
     el.innerHTML = 'Qayta tekshirish'; el.disabled = false; ST.busy = false;
   } catch (e) { toast(e.message, 'bad'); el.disabled = false; el.innerHTML = icon('spark', 18) + ' AI tekshirsin'; ST.busy = false; }
+};
+
+// ═════════ imtihondagidek suhbat: AI savol o'qiydi → o'quvchi javob beradi → jim qolsa keyingisi ═════════
+export function mountSpeakingAI(box, day, task) {
+  abortFlow(); stopRec();
+  ST = { day, task, items: items(task), busy: false, done: false, box };
+  S.cleanup = () => { abortFlow(); stopRec(); };
+  if (!SR) return renderReview(box, "<b>Bu brauzerda ovoz→matn ishlamaydi.</b> Javoblarni yozing yoki Chrome (kompyuter / Android) da oching.");
+  box.innerHTML = `<div class="panel mt"><div class="row between wrapx"><b>🤖 AI Speaking imtihoni</b><span class="badge">${ST.items.length} savol</span></div>
+    <p class="muted" style="margin:6px 0 0">AI sizga savollarni ovoz chiqarib o'qiydi, siz inglizcha javob berasiz. Jim qolsangiz keyingi savolga o'tadi. Part 2 da 1 daqiqa tayyorgarlik majburiy. Oxirida AI hammasini tekshiradi. Naushnik taqing, mikrofonga ruxsat bering.</p>
+    <div class="ctas mt"><button class="btn primary lg" data-act="spaiStart">${icon('play', 18)} Boshlash</button></div></div>`;
+}
+let RUN = null, TICK = 0;
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+function abortFlow() { RUN = null; try { window.speechSynthesis?.cancel(); } catch { /* */ } clearInterval(TICK); }
+function say(text) {
+  return new Promise(res => {
+    const ss = window.speechSynthesis; if (!ss) return res();
+    const u = new SpeechSynthesisUtterance(text); u.lang = 'en-GB'; u.rate = 0.95;
+    const vs = ss.getVoices(); const v = vs.find(x => /en[-_]GB/i.test(x.lang)) || vs.find(x => /^en/i.test(x.lang)); if (v) u.voice = v;
+    let done = false; const fin = () => { if (!done) { done = true; res(); } };
+    u.onend = u.onerror = fin; setTimeout(fin, 30000);
+    ss.cancel(); ss.speak(u);
+  });
+}
+const stage = () => $('#spStage');
+function setStage(i, html) {
+  const it = ST.items[i];
+  ST.box.innerHTML = `<div class="panel mt" id="spStage"><div class="row between wrapx"><span class="badge">${esc(it.title)}</span><span class="muted">Savol ${i + 1} / ${ST.items.length}</span></div>
+    <div style="height:6px;border-radius:6px;background:var(--border,#ddd);margin:10px 0"><div style="height:100%;width:${Math.round(i / ST.items.length * 100)}%;border-radius:6px;background:var(--primary,#6366f1)"></div></div>${html}</div>`;
+}
+const cueCard = it => `<div class="ie-cue mt" style="font-size:18px;line-height:1.6">${esc(it.prompt).replace(/ \| /g, '<br>')}</div>`;
+function listen(i, { silence, max }) {
+  return new Promise(res => {
+    const id = RUN?.id, it = ST.items[i]; let base = it.text ? it.text + ' ' : '', start = Date.now(), last = 0, has = false, ended = false;
+    const finish = () => { if (ended) return; ended = true; clearInterval(TICK); try { r.onend = null; r.stop(); } catch { /* */ } REC = null; res(); };
+    const r = new SR(); r.lang = 'en-US'; r.continuous = true; r.interimResults = true; REC = r;
+    r.onresult = e => {
+      let v = ''; for (let k = 0; k < e.results.length; k++) v += e.results[k][0].transcript + ' ';
+      v = (base + v).replace(/\s+/g, ' ').trim(); it.text = v; has = wc(v) > 0; last = Date.now();
+      const t = $('#spLive'); if (t) t.textContent = v;
+    };
+    r.onerror = e => { if (e.error === 'not-allowed' || e.error === 'service-not-allowed') { toast('Mikrofonga ruxsat bering', 'bad'); abortFlow(); ended = true; res(); } };
+    r.onend = () => { if (!ended && RUN?.id === id) { base = it.text ? it.text + ' ' : ''; try { r.start(); } catch { /* */ } } };
+    try { r.start(); } catch { return res(); }
+    window.__spNext = finish;
+    clearInterval(TICK);
+    TICK = setInterval(() => {
+      if (RUN?.id !== id) return finish();
+      const now = Date.now(), left = Math.max(0, Math.round((max - (now - start)) / 1000)), t = $('#spLeft'); if (t) t.textContent = left + ' s';
+      if ((has && now - last > silence) || (!has && now - start > 12000 + (silence > 6000 ? 8000 : 0)) || now - start > max) finish();
+    }, 400);
+  });
+}
+const listenUI = (i, extra = '') => setStage(i, `${extra}<div class="mt" style="display:flex;align-items:center;gap:10px"><span style="width:14px;height:14px;border-radius:50%;background:#ef4444;display:inline-block;animation:pulse 1s infinite"></span><b>Gapiring…</b><span class="muted">(jim qolsangiz keyingisiga o'tadi)</span><span class="muted" style="margin-left:auto" id="spLeft"></span></div>
+  <p class="muted" id="spLive" style="min-height:48px;margin:10px 0"></p>
+  <div class="ctas"><button class="btn" data-act="spaiNext">Keyingi →</button></div><style>@keyframes pulse{50%{opacity:.3}}</style>`);
+actions.spaiNext = () => { window.__spNext?.(); };
+actions.spaiStart = async () => {
+  const id = Date.now(); RUN = { id }; const alive = () => RUN?.id === id;
+  if (!ST.items.some(x => x)) return;
+  try { await navigator.mediaDevices?.getUserMedia?.({ audio: true }).then(s => s.getTracks().forEach(t => t.stop())); } catch { toast('Mikrofonga ruxsat bering', 'bad'); RUN = null; return; }
+  setStage(0, `<p style="font-size:18px">🔊 AI: “Hello. Are you ready? Let's begin.”</p>`);
+  await say("Hello. Are you ready? Let's begin the speaking test.");
+  let lastPart = -1;
+  for (let i = 0; i < ST.items.length && alive(); i++) {
+    const it = ST.items[i], cue = /cue card/i.test(it.label);
+    if (it.part !== lastPart) { lastPart = it.part; setStage(i, `<p style="font-size:18px">🔊 ${esc(it.title.split('—')[0].trim())}</p>`); await say(it.title.split('—')[0].trim() + '.'); if (!alive()) break; }
+    if (cue) {
+      setStage(i, `<p>🔊 AI topshiriqni o'qiyapti…</p>${cueCard(it)}`);
+      await say('Now, I am going to give you a topic. You have one minute to prepare. You can make notes. Here is your topic. ' + it.prompt.split(' | ')[0]);
+      for (let s = 60; s > 0 && alive(); s--) { setStage(i, `<p><b>⏱ Tayyorgarlik: ${s} soniya</b> <span class="muted">(majburiy — o'tkazib bo'lmaydi)</span></p>${cueCard(it)}`); await sleep(1000); }
+      if (!alive()) break;
+      setStage(i, `<p>🔊 Vaqt tugadi…</p>${cueCard(it)}`); await say('All right. Your time is up. Please start speaking now.'); if (!alive()) break;
+      listenUI(i, cueCard(it)); await listen(i, { silence: 10000, max: 120000 });
+    } else {
+      setStage(i, `<p style="font-size:20px;margin:6px 0"><b>${esc(it.prompt)}</b></p><p class="muted">🔊 AI savolni o'qiyapti…</p>`);
+      await say(it.prompt); if (!alive()) break;
+      listenUI(i, `<p style="font-size:20px;margin:6px 0"><b>${esc(it.prompt)}</b></p>`); await listen(i, { silence: 5000, max: 90000 });
+    }
+  }
+  if (!alive()) return;
+  RUN = null; window.__spNext = null;
+  await say('Thank you. That is the end of the speaking test.');
+  renderReview(ST.box, "Imtihon tugadi! Javoblaringiz matnga aylandi — xato bo'lsa tuzating, keyin «AI tekshirsin» ni bosing.");
+  ST.box.scrollIntoView({ behavior: 'smooth' });
 };
