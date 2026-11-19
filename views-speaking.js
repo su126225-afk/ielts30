@@ -58,7 +58,7 @@ actions.spaiCheck = async el => {
   const parts = ST.items.filter(x => wc(x.text) > 0);
   if (wc(parts.map(x => x.text).join(' ')) < 20) return toast("Kamida 20 ta so'z gapiring yoki yozing", 'bad');
   ST.busy = true; el.disabled = true; el.innerHTML = 'AI tekshiryapti…';
-  const out = $('#spaiOut');
+  const out = $('#spaiOut'); out.innerHTML = '<p class="muted mt2">⏳ AI javoblaringizni tekshiryapti (10–20 soniya)…</p>';
   try {
     const a = getAcc();
     const fb = await store.checkIeSpeaking({ parts: parts.map(x => ({ title: x.title, prompt: x.prompt, text: x.text })), group: a?.group || 'IELTS30' });
@@ -75,7 +75,11 @@ actions.spaiCheck = async el => {
       <div class="ctas mt">${r.ok ? `<a class="btn primary lg" href="#/marathon/${ST.day}">Kunga qaytish →</a>` : `<span class="badge bad">${esc(reasonText(r))}</span>`}</div></div>`;
     out.scrollIntoView({ behavior: 'smooth', block: 'start' });
     el.innerHTML = 'Qayta tekshirish'; el.disabled = false; ST.busy = false;
-  } catch (e) { toast(e.message, 'bad'); el.disabled = false; el.innerHTML = icon('spark', 18) + ' AI tekshirsin'; ST.busy = false; }
+  } catch (e) {
+    console.error(e); toast(e.message, 'bad');
+    out.innerHTML = `<div class="panel mt2" style="border-color:#ef4444"><b>⚠️ AI tekshiruvi ishlamadi</b><p style="word-break:break-word">${esc(e.message)}</p><p class="muted">Bu xabarni ustozga yuboring. Javoblaringiz yuqorida saqlanib turibdi — «Qayta tekshirish» ni bosib qayta urinib ko'ring.</p></div>`;
+    el.disabled = false; el.innerHTML = 'Qayta tekshirish'; ST.busy = false;
+  }
 };
 
 // ═════════ imtihondagidek suhbat: AI savol o'qiydi → o'quvchi javob beradi → jim qolsa keyingisi ═════════
@@ -84,8 +88,8 @@ export function mountSpeakingAI(box, day, task) {
   ST = { day, task, items: items(task), busy: false, done: false, box };
   S.cleanup = () => { abortFlow(); stopRec(); };
   if (!SR) return renderReview(box, "<b>Bu brauzerda ovoz→matn ishlamaydi.</b> Javoblarni yozing yoki Chrome (kompyuter / Android) da oching.");
-  box.innerHTML = `<div class="panel mt"><div class="row between wrapx"><b>🤖 AI Speaking imtihoni</b><span class="badge">${ST.items.length} savol</span></div>
-    <p class="muted" style="margin:6px 0 0">AI sizga savollarni ovoz chiqarib o'qiydi, siz inglizcha javob berasiz. Jim qolsangiz keyingi savolga o'tadi. Part 2 da 1 daqiqa tayyorgarlik majburiy. Oxirida AI hammasini tekshiradi. Naushnik taqing, mikrofonga ruxsat bering.</p>
+  box.innerHTML = `<div class="panel mt"><div class="row between wrapx"><b>🤖 AI Speaking imtihoni</b><span class="badge">${ST.items.length} savol · v9</span></div>
+    <p class="muted" style="margin:6px 0 0">AI sizga savollarni ovoz chiqarib o'qiydi, siz inglizcha javob berasiz. Savolga javob berib bo'lgach «Keyingi» tugmasini bosasiz (o'zi o'tmaydi). Part 2 da 1 daqiqa tayyorgarlik beriladi (xohlasangiz o'tkazib yuborasiz). Part 1 va 3 da javob bergach «Keyingi» ni bosasiz. Oxirida AI hammasini tekshiradi. Naushnik taqing, mikrofonga ruxsat bering.</p>
     <div class="ctas mt"><button class="btn primary lg" data-act="spaiStart">${icon('play', 18)} Boshlash</button></div></div>`;
 }
 let RUN = null, TICK = 0;
@@ -126,13 +130,15 @@ function listen(i, { silence, max }) {
     TICK = setInterval(() => {
       if (RUN?.id !== id) return finish();
       const now = Date.now(), left = Math.max(0, Math.round((max - (now - start)) / 1000)), t = $('#spLeft'); if (t) t.textContent = left + ' s';
-      if ((has && now - last > silence) || (!has && now - start > 12000 + (silence > 6000 ? 8000 : 0)) || now - start > max) finish();
+      if (silence && ((has && now - last > silence) || (!has && now - start > 12000 + (silence > 6000 ? 8000 : 0)))) return finish();
+      if (now - start > max) finish();
     }, 400);
   });
 }
-const listenUI = (i, extra = '') => setStage(i, `${extra}<div class="mt" style="display:flex;align-items:center;gap:10px"><span style="width:14px;height:14px;border-radius:50%;background:#ef4444;display:inline-block;animation:pulse 1s infinite"></span><b>Gapiring…</b><span class="muted">(jim qolsangiz keyingisiga o'tadi)</span><span class="muted" style="margin-left:auto" id="spLeft"></span></div>
+const listenUI = (i, extra = '') => setStage(i, `${extra}<div class="mt" style="display:flex;align-items:center;gap:10px"><span style="width:14px;height:14px;border-radius:50%;background:#ef4444;display:inline-block;animation:pulse 1s infinite"></span><b>Gapiring…</b><span class="muted">${ST.items[i].label.match(/cue card/i) ? '2 daqiqagacha gapiring, tugagach «Keyingi» ni bosing' : 'javob bergach «Keyingi» ni bosing'}</span><span class="muted" style="margin-left:auto" id="spLeft"></span></div>
   <p class="muted" id="spLive" style="min-height:48px;margin:10px 0"></p>
   <div class="ctas"><button class="btn" data-act="spaiNext">Keyingi →</button></div><style>@keyframes pulse{50%{opacity:.3}}</style>`);
+actions.spaiSkipPrep = () => { if (RUN) RUN.skip = true; };
 actions.spaiNext = () => { window.__spNext?.(); };
 actions.spaiStart = async () => {
   const id = Date.now(); RUN = { id }; const alive = () => RUN?.id === id;
@@ -147,19 +153,22 @@ actions.spaiStart = async () => {
     if (cue) {
       setStage(i, `<p>🔊 AI topshiriqni o'qiyapti…</p>${cueCard(it)}`);
       await say('Now, I am going to give you a topic. You have one minute to prepare. You can make notes. Here is your topic. ' + it.prompt.split(' | ')[0]);
-      for (let s = 60; s > 0 && alive(); s--) { setStage(i, `<p><b>⏱ Tayyorgarlik: ${s} soniya</b> <span class="muted">(majburiy — o'tkazib bo'lmaydi)</span></p>${cueCard(it)}`); await sleep(1000); }
+      RUN.skip = false;
+      for (let s = 60; s > 0 && alive() && !RUN.skip; s--) { setStage(i, `<p><b>⏱ Tayyorgarlik: ${s} soniya</b></p>${cueCard(it)}<div class="ctas"><button class="btn" data-act="spaiSkipPrep">Tayyorman — o'tkazib yuborish →</button></div>`); await sleep(1000); }
       if (!alive()) break;
       setStage(i, `<p>🔊 Vaqt tugadi…</p>${cueCard(it)}`); await say('All right. Your time is up. Please start speaking now.'); if (!alive()) break;
-      listenUI(i, cueCard(it)); await listen(i, { silence: 10000, max: 120000 });
+      listenUI(i, cueCard(it)); await listen(i, { silence: 0, max: 120000 });
     } else {
       setStage(i, `<p style="font-size:20px;margin:6px 0"><b>${esc(it.prompt)}</b></p><p class="muted">🔊 AI savolni o'qiyapti…</p>`);
       await say(it.prompt); if (!alive()) break;
-      listenUI(i, `<p style="font-size:20px;margin:6px 0"><b>${esc(it.prompt)}</b></p>`); await listen(i, { silence: 5000, max: 90000 });
+      listenUI(i, `<p style="font-size:20px;margin:6px 0"><b>${esc(it.prompt)}</b></p>`); await listen(i, { silence: 0, max: 180000 });
     }
   }
   if (!alive()) return;
   RUN = null; window.__spNext = null;
   await say('Thank you. That is the end of the speaking test.');
-  renderReview(ST.box, "Imtihon tugadi! Javoblaringiz matnga aylandi — xato bo'lsa tuzating, keyin «AI tekshirsin» ni bosing.");
+  renderReview(ST.box, "Imtihon tugadi! AI javoblaringizni tekshiryapti… Matnda xato bo'lsa tuzating va «Qayta tekshirish» ni bosing.");
   ST.box.scrollIntoView({ behavior: 'smooth' });
+  if (wc(ST.items.map(x => x.text).join(' ')) >= 20) setTimeout(() => $('#spaiGo')?.click(), 300);
+  else toast("Javoblar juda qisqa — matnni to'ldirib «AI tekshirsin» ni bosing", 'bad');
 };
